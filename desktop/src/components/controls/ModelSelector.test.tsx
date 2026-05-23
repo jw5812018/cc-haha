@@ -1,4 +1,4 @@
-import { afterEach, describe, expect, it, vi } from 'vitest'
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import { act, cleanup, fireEvent, render, screen } from '@testing-library/react'
 import '@testing-library/jest-dom'
 
@@ -32,6 +32,12 @@ afterEach(() => {
   useChatStore.setState(useChatStore.getInitialState(), true)
   useHahaOAuthStore.setState(useHahaOAuthStore.getInitialState(), true)
   useHahaOpenAIOAuthStore.setState(useHahaOpenAIOAuthStore.getInitialState(), true)
+})
+
+// Prevent real API calls from fetchStatus on mount
+beforeEach(() => {
+  useHahaOAuthStore.setState({ fetchStatus: async () => {} })
+  useHahaOpenAIOAuthStore.setState({ fetchStatus: async () => {} })
 })
 
 describe('ModelSelector', () => {
@@ -139,7 +145,10 @@ describe('ModelSelector', () => {
       },
     ]
     const setSessionRuntime = vi.fn()
-    useHahaOpenAIOAuthStore.setState({ status: { loggedIn: true, expiresAt: null, email: null, accountId: null } })
+    useHahaOpenAIOAuthStore.setState({
+      status: { loggedIn: true, expiresAt: null, email: null, accountId: null },
+      fetchStatus: async () => {},
+    })
     useSettingsStore.setState({
       locale: 'en',
       availableModels: openAIModels,
@@ -175,8 +184,8 @@ describe('ModelSelector', () => {
   })
 
   it('hides official provider sections when OAuth is not logged in', async () => {
-    useHahaOAuthStore.setState({ status: { loggedIn: false } })
-    useHahaOpenAIOAuthStore.setState({ status: { loggedIn: false } })
+    useHahaOAuthStore.setState({ status: { loggedIn: false }, fetchStatus: async () => {} })
+    useHahaOpenAIOAuthStore.setState({ status: { loggedIn: false }, fetchStatus: async () => {} })
     useSettingsStore.setState({
       locale: 'en',
       availableModels: MODELS,

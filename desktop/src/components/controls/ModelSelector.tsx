@@ -38,7 +38,8 @@ type Props = {
 }
 
 type DropdownPosition = {
-  top: number
+  top: number | undefined
+  bottom: number | undefined
   left: number
   width: number
   maxHeight: number
@@ -267,9 +268,8 @@ export function ModelSelector({
     const maxHeight = Math.min(DROPDOWN_MAX_HEIGHT, availableHeight)
 
     setDropdownPosition({
-      top: placeBelow
-        ? rect.bottom + DROPDOWN_GAP
-        : Math.max(VIEWPORT_MARGIN, rect.top - DROPDOWN_GAP - maxHeight),
+      top: placeBelow ? rect.bottom + DROPDOWN_GAP : undefined,
+      bottom: placeBelow ? undefined : (viewportHeight - rect.top + DROPDOWN_GAP),
       left,
       width,
       maxHeight,
@@ -535,6 +535,7 @@ export function ModelSelector({
         className="fixed z-[80] rounded-xl border border-[var(--color-border)] bg-[var(--color-surface-container-lowest)] shadow-[var(--shadow-dropdown)]"
         style={{
           top: dropdownPosition.top,
+          bottom: dropdownPosition.bottom,
           left: dropdownPosition.left,
           width: dropdownPosition.width,
         }}
