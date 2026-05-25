@@ -1,4 +1,5 @@
-import { useCallback, useEffect, useMemo, useRef, useState, type WheelEvent } from 'react'
+import { useCallback, useEffect, useId, useMemo, useRef, useState, type WheelEvent } from 'react'
+import { Info } from 'lucide-react'
 import { useTranslation, type TranslationKey } from '../i18n'
 import { terminalApi } from '../api/terminal'
 import { useSettingsStore } from '../stores/settingsStore'
@@ -359,6 +360,7 @@ export function TerminalSettings({
           <h2 className={`${docked ? 'text-[13px]' : 'text-sm'} shrink-0 font-semibold text-[var(--color-text-primary)]`}>
             {t('settings.terminal.title')}
           </h2>
+          <TerminalHelpHint compact={docked} />
           <StatusPill status={status} label={t(STATUS_LABEL_KEYS[status])} compact={docked} />
           {shellInfo && (
             <div className="flex min-w-0 items-center gap-1.5 text-xs text-[var(--color-text-tertiary)]">
@@ -531,6 +533,37 @@ export function TerminalSettings({
         </div>
       )}
     </div>
+  )
+}
+
+function TerminalHelpHint({ compact = false }: { compact?: boolean }) {
+  const t = useTranslation()
+  const tooltipId = useId()
+  const [open, setOpen] = useState(false)
+
+  return (
+    <span className="group relative inline-flex shrink-0">
+      <button
+        type="button"
+        aria-label={t('settings.terminal.infoLabel')}
+        aria-describedby={tooltipId}
+        aria-expanded={open}
+        onClick={() => setOpen((value) => !value)}
+        onKeyDown={(event) => {
+          if (event.key === 'Escape') setOpen(false)
+        }}
+        className={`${compact ? 'h-6 w-6' : 'h-7 w-7'} inline-flex items-center justify-center rounded-full text-[var(--color-text-tertiary)] transition-colors hover:bg-[var(--color-surface-hover)] hover:text-[var(--color-text-primary)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--color-border-focus)]`}
+      >
+        <Info className={compact ? 'h-3.5 w-3.5' : 'h-4 w-4'} aria-hidden="true" strokeWidth={2.2} />
+      </button>
+      <span
+        id={tooltipId}
+        role="tooltip"
+        className={`${open ? 'visible opacity-100' : 'invisible opacity-0'} absolute left-0 top-full z-30 mt-2 w-[min(340px,calc(100vw-3rem))] rounded-[var(--radius-md)] border border-[var(--color-border)] bg-[var(--color-surface-container-high)] px-3 py-2 text-left text-xs leading-5 text-[var(--color-text-secondary)] shadow-[var(--shadow-dropdown)] transition-opacity group-hover:visible group-hover:opacity-100 group-focus-within:visible group-focus-within:opacity-100`}
+      >
+        {t('settings.terminal.description')}
+      </span>
+    </span>
   )
 }
 
